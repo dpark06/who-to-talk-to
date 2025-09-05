@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Who Should I Talk To?</title>
+  <link rel="preload" href="risd-logo.png" as="image">
+  <style>
+    :root {
+      --main-color-entity: hsl(227, 100%, 57%);
+      --main-color-entity-light: hsla(227, 100%, 57%, 0.2);
+      --main-color-black: hsl(0, 0%, 7%);
+      --main-color-white: hsl(0, 0%, 100%);
+      --main-color-gray: hsl(60, 5%, 87%);
+      --main-color-gray-lt: hsl(60, 9%, 96%);
+    }
+
+    body {
+      font-family: "RISD Sans", "Helvetica", "Arial", sans-serif;
+      background-color: var(--main-color-gray-lt);
+      color: var(--main-color-black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      padding: 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      background-image: url(risd-logo.png);
+      background-repeat: no-repeat;
+      background-size: 53%;
+      background-position: center;
+      opacity: .1;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+    }
+
+    h1 {
+      color: var(--main-color-entity);
+      margin-bottom: 1rem;
+      font-size: 2rem;
+      z-index: 1;
+    }
+
+    select, button, .external-link {
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      margin: 0.5rem 0;
+      border: 1px solid var(--main-color-gray);
+      border-radius: 0.5rem;
+      background-color: var(--main-color-white);
+      color: var(--main-color-black);
+      text-decoration: none;
+      display: inline-block;
+      z-index: 1;
+      position: relative;
+    }
+
+    button {
+      background-color: var(--main-color-entity);
+      color: var(--main-color-white);
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: hsla(227, 100%, 57%, 0.8);
+    }
+
+    .external-link {
+      background-color: transparent;
+      color: var(--main-color-entity);
+      border: 2px solid var(--main-color-entity);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .external-link:hover {
+      background-color: var(--main-color-entity);
+      color: var(--main-color-white);
+    }
+
+    .output {
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      background: var(--main-color-white);
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      max-width: 500px;
+      text-align: center;
+      z-index: 1;
+      position: relative;
+      transition: opacity 0.4s ease;
+      opacity: 0;
+    }
+
+    .output.show {
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+      select, button, .external-link {
+        width: 100%;
+      }
+
+      .output {
+        width: 100%;
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        text-align: center;
+      }
+    }
+
+    .logo-rain {
+      position: fixed;
+      top: -100px;
+      width: 60px;
+      height: 60px;
+      opacity: 0.75;
+      pointer-events: none;
+      z-index: 2;
+      animation: fall 3s linear forwards;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.75;
+      }
+      100% {
+        transform: translateY(110vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Who Should I Talk To?</h1>
+
+  <label for="scenario">Select your situation or emotion:</label><br>
+  <select id="scenario">
+    <option value="">-- Choose one --</option>
+    <option value="lost">Feeling lost or unsure</option>
+    <option value="accomplished">Accomplished something big</option>
+    <option value="homesick">Feeling homesick</option>
+    <option value="bored">Just want to chat</option>
+    <option value="stressed">Stressed or anxious</option>
+    <option value="wantToLaugh">Need to laugh or relax</option>
+    <option value="nostalgic">Feeling nostalgic</option>
+  </select>
+
+  <br>
+  <button onclick="suggestContact()">Get Suggestion</button>
+
+  <div id="result" class="output"></div>
+
+  <a class="external-link" href="https://students.risd.edu/health-and-wellness/counseling-psychological-services" target="_blank">
+    RISD Counseling & Psychological Services
+  </a>
+
+  <script>
+    const suggestions = {
+      lost: {
+        contact: "Parents",
+        reason: "They can offer wisdom and reassurance when you're uncertain.",
+        message: "Hey, I'm feeling a bit unsure lately. Can we talk?"
+      },
+      accomplished: {
+        contact: "Parents",
+        reason: "They love hearing about your wins and will be so proud.",
+        message: "Guess what? I just accomplished something big!"
+      },
+      homesick: {
+        contact: "Parents",
+        reason: "They bring a sense of comfort and home even from afar.",
+        message: "I miss you guys. Just wanted to check in."
+      },
+      bored: {
+        contact: "Friends",
+        reason: "Friends are the best people to hang out or chat with when you're bored.",
+        message: "I'm bored. Want to catch up or do something fun?"
+      },
+      stressed: {
+        contact: "Friends",
+        reason: "They’re great for venting, advice, or just being around.",
+        message: "Ugh, today was rough. You free to talk?"
+      },
+      wantToLaugh: {
+        contact: "Friends",
+        reason: "Friends are your go-to when you need lightness and laughs.",
+        message: "I need to laugh. Got memes or time to chill?"
+      },
+      nostalgic: {
+        contact: "Sibling",
+        reason: "They share your memories and get your background instantly.",
+        message: "Remember when we used to...? I was thinking of that."
+      }
+    };
+
+    function suggestContact() {
+      const scenario = document.getElementById("scenario").value;
+      const resultDiv = document.getElementById("result");
+
+      if (scenario && suggestions[scenario]) {
+        const suggestion = suggestions[scenario];
+        resultDiv.innerHTML = `
+          <h3>Contact: ${suggestion.contact}</h3>
+          <p><strong>Why:</strong> ${suggestion.reason}</p>
+          <p><strong>Message Starter:</strong><br>"${suggestion.message}"</p>
+        `;
+        resultDiv.classList.remove("show");
+        void resultDiv.offsetWidth;
+        resultDiv.classList.add("show");
+      } else {
+        resultDiv.innerHTML = "<p>Please select a valid option.</p>";
+        resultDiv.classList.remove("show");
+        void resultDiv.offsetWidth;
+        resultDiv.classList.add("show");
+      }
+    }
+
+    function createFallingLogo() {
+      const img = document.createElement("img");
+      img.src = "risd-logo.png";
+      img.className = "logo-rain";
+      img.style.left = Math.random() * window.innerWidth + "px";
+      img.style.animationDuration = 2 + Math.random() * 2 + "s";
+      img.style.transform = `rotate(${Math.random() * 360}deg)`;
+      const size = 40 + Math.random() * 30;
+      img.style.width = `${size}px`;
+      img.style.height = `${size}px`;
+
+      document.body.appendChild(img);
+
+      setTimeout(() => {
+        img.remove();
+      }, 4000);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") {
+        e.preventDefault(); // prevents scrolling
+        for (let i = 0; i < 10; i++) {
+          setTimeout(createFallingLogo, i * 100);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
